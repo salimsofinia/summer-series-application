@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Excel</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <h1>Upload Excel File</h1>
+    <input type="file" id="fileInput" />
+    <button id="processBtn">Process File</button>
+    <pre id="output"></pre>
+
+    <script>
+      let participants = [];
+
+      function updateParticipants(data) {
+        participants = data.map((row) => ({
+          "O/all Pos": row["O/all Pos"] ?? null,
+          "Cat Pos": row["Cat Pos"] ?? null,
+          Time: row.Time ?? null,
+          "Race Nr": row["Race Nr"] ?? null,
+          Name: row.Name ?? null,
+          Surname: row.Surname ?? null,
+          Team: row.Team ?? null,
+        }));
+        console.log("Updated Participants Array:", participants);
+      }
+
+      document.getElementById("processBtn").addEventListener("click", () => {
+        const fileInput = document.getElementById("fileInput");
+        if (!fileInput.files.length) {
+          alert("Please select a file first.");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+          // Convert the sheet to JSON
+          const participantsData = XLSX.utils.sheet_to_json(firstSheet);
+
+          // Display data and update the array
+          document.getElementById("output").textContent = JSON.stringify(
+            participantsData,
+            null,
+            2
+          );
+          updateParticipants(participantsData);
+        };
+
+        reader.readAsArrayBuffer(file);
+      });
+    </script>
+  </body>
+</html>
