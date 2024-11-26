@@ -176,30 +176,6 @@
         }
       };
 
-      // Capture the time difference for a race number
-      function captureTime(event) {
-        event.preventDefault();
-        if (!startTime) {
-          alert("Start the timer first!");
-          return;
-        }
-
-        const raceNr = document.getElementById("raceNr").value;
-        if (!raceNr) {
-          alert("Enter a valid Race Nr.");
-          return;
-        }
-
-        const currentTime = new Date();
-        const elapsedTime = (currentTime - startTime) / 1000; // Elapsed time in seconds
-        document.getElementById("elapsedTime").value = elapsedTime;
-
-        // Submit the form
-        document.getElementById("captureForm").submit();
-      }
-    </script>
-    <script>
-      // Format time in HH:MM:SS
       function formatTime(seconds) {
         const hrs = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
