@@ -130,18 +130,121 @@ app.get("/", (req, res) => {
 // Route to upload and parse the XLSX file
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded.");
+  counters = {
+    overall: 0,
+    categories: {
+      "0F-99F": 0,
+      "100F-199F": 0,
+      "200F-299F": 0,
+      "300F-399F": 0,
+      "400F-499F": 0,
+      "500F-599F": 0,
+      "600F-699F": 0,
+      "700F-799F": 0,
+      "800F-899F": 0,
+      "900F-999F": 0,
+      "0M-99M": 0,
+      "100M-199M": 0,
+      "200M-299M": 0,
+      "300M-399M": 0,
+      "400M-499M": 0,
+      "500M-599M": 0,
+      "600M-699M": 0,
+      "700M-799M": 0,
+      "800M-899M": 0,
+      "900M-999M": 0,
+    },
+  };
   const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   jsonArray = xlsx.utils.sheet_to_json(sheet, { defval: null }); // Preserve null values
   res.redirect("/");
 });
 
+// Global counters
+let counters = {
+  overall: 0,
+  categories: {
+    "0F-99F": 0,
+    "100F-199F": 0,
+    "200F-299F": 0,
+    "300F-399F": 0,
+    "400F-499F": 0,
+    "500F-599F": 0,
+    "600F-699F": 0,
+    "700F-799F": 0,
+    "800F-899F": 0,
+    "900F-999F": 0,
+    "0M-99M": 0,
+    "100M-199M": 0,
+    "200M-299M": 0,
+    "300M-399M": 0,
+    "400M-499M": 0,
+    "500M-599M": 0,
+    "600M-699M": 0,
+    "700M-799M": 0,
+    "800M-899M": 0,
+    "900M-999M": 0,
+  },
+};
+
+// Helper function to determine category
+function getCategory(raceNr) {
+  const rangeKeys = Object.keys(counters.categories);
+  for (const key of rangeKeys) {
+    const [start, end] = key.split("-");
+    const rangeStart = parseInt(start, 10);
+    const rangeEnd = parseInt(end, 10);
+    if (
+      raceNr.endsWith(start.slice(-1)) &&
+      parseInt(raceNr.slice(0, -1)) >= rangeStart &&
+      parseInt(raceNr.slice(0, -1)) <= rangeEnd
+    ) {
+      return key;
+    }
+  }
+  return null;
+}
+
 // Route to capture time
 app.post("/capture", (req, res) => {
   const { raceNr, elapsedTime } = req.body;
+
+  // Increment overall position counter
+  counters.overall += 1;
+
+  // Determine the category and increment the category counter
+  const category = getCategory(raceNr);
+  if (!category) {
+    return res.status(400).send("Invalid Race Nr category.");
+  }
+  counters.categories[category] += 1;
+
+  // Update the JSON data
   jsonArray = jsonArray.map((entry) =>
-    entry["Race Nr"] === raceNr ? { ...entry, Time: elapsedTime } : entry
+    entry["Race Nr"] === raceNr
+      ? {
+          ...entry,
+          Time: elapsedTime,
+          "O/all Pos": counters.overall,
+          "Cat Pos": counters.categories[category],
+        }
+      : entry
   );
+
+  // Sort the JSON array by "O/all Pos" (non-blank values first, then blanks)
+  jsonArray.sort((a, b) => {
+    const posA = a["O/all Pos"];
+    const posB = b["O/all Pos"];
+
+    // Handle blank values: move them to the bottom
+    if (posA == null || posA === "") return 1;
+    if (posB == null || posB === "") return -1;
+
+    // Sort non-blank values numerically
+    return posA - posB;
+  });
+
   res.redirect("/");
 });
 
