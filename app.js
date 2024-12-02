@@ -123,7 +123,7 @@ const upload = multer({ storage });
 app.use(express.static(path.join(__dirname, "public")));
 
 // Route to render the webpage
-app.get("/", (req, res) => {
+app.get("https://summer-series-application.vercel.app/", (req, res) => {
   res.render("index", { jsonArray });
 });
 
