@@ -88,6 +88,25 @@
         // Submit the form
         document.getElementById("captureForm").submit();
       }
+
+      function captureCustomTime(event) {
+        event.preventDefault();
+        const raceNr = document.getElementById("customRaceNr").value;
+        const elapsedTime = document.getElementById("customElapsedTime").value;
+
+        if (!raceNr) {
+          alert("Enter a valid Race Nr.");
+          return;
+        }
+
+        if (!elapsedTime) {
+          alert("Enter a valid elapsed time.");
+          return;
+        }
+
+        // Submit the form
+        document.getElementById("customTimeForm").submit();
+      }
     </script>
   </head>
   <body>
@@ -118,6 +137,36 @@
       <input type="text" name="raceNr" id="raceNr" required />
       <input type="hidden" name="elapsedTime" id="elapsedTime" />
       <button type="submit">Capture</button>
+    </form>
+
+    <!-- Replace Race Number -->
+    <h2>Replace Race Number</h2>
+    <form action="/replaceRaceNr" method="post">
+      <label for="currentRaceNr">Current Race Nr:</label>
+      <input type="text" name="currentRaceNr" id="currentRaceNr" required />
+      <label for="replaceRaceNr">Replace with:</label>
+      <input type="text" name="replaceRaceNr" id="replaceRaceNr" required />
+      <button type="submit">Replace</button>
+    </form>
+
+    <!-- Capture Custom Time -->
+    <h2>Capture Custom Time</h2>
+    <form
+      id="customTimeForm"
+      action="/captureCustomTime"
+      method="post"
+      onsubmit="captureCustomTime(event)"
+    >
+      <label for="customRaceNr">Race Nr:</label>
+      <input type="text" name="customRaceNr" id="customRaceNr" required />
+      <label for="customElapsedTime">Elapsed Time (HH:MM:SS):</label>
+      <input
+        type="text"
+        name="customElapsedTime"
+        id="customElapsedTime"
+        required
+      />
+      <button type="submit">Capture Custom Time</button>
     </form>
 
     <!-- Download Updated XLSX -->

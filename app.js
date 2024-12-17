@@ -24,6 +24,11 @@ app.get("/", (req, res) => {
   res.render("index", { jsonArray });
 });
 
+// Helper function to determine category
+function getCategory(raceNr) {
+  // Existing category determination logic
+}
+
 // Route to upload and parse the XLSX file
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded.");
@@ -107,6 +112,13 @@ function getCategory(raceNr) {
 app.post("/capture", (req, res) => {
   const { raceNr, elapsedTime } = req.body;
 
+  // Validate Race Nr
+  const raceEntry = jsonArray.find((entry) => entry["Race Nr"] === raceNr);
+  if (!raceEntry) {
+    res.redirect("/");
+    return;
+  }
+
   // Increment overall position counter
   counters.overall += 1;
 
@@ -140,6 +152,45 @@ app.post("/capture", (req, res) => {
 
     // Sort non-blank values numerically
     return posA - posB;
+  });
+
+  res.redirect("/");
+});
+
+// Replace Race Number
+app.post("/replaceRaceNr", (req, res) => {
+  const { currentRaceNr, replaceRaceNr } = req.body;
+
+  jsonArray = jsonArray
+    .map((entry) => {
+      if (entry["Race Nr"] === currentRaceNr) {
+        if (!entry["Name"] && !entry["Surname"]) {
+          return null; // Mark for deletion
+        }
+        return {
+          ...entry,
+          "Race Nr": replaceRaceNr,
+        };
+      }
+      return entry;
+    })
+    .filter(Boolean); // Remove null entries
+  res.redirect("/");
+});
+
+// Capture Custom Time
+app.post("/captureCustomTime", (req, res) => {
+  const { customRaceNr, customElapsedTime } = req.body;
+
+  // Add a new entry for custom time
+  jsonArray.push({
+    "O/all Pos": null,
+    "Cat Pos": null,
+    Time: customElapsedTime,
+    "Race Nr": customRaceNr,
+    Name: "",
+    Surname: "",
+    Team: "",
   });
 
   res.redirect("/");
