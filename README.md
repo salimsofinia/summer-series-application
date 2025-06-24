@@ -2,6 +2,8 @@
 
 This is a simple web-based application for managing race event times. Built with **Node.js** and **Express**, it allows users to upload participant data from XLSX files, capture and update race finish times in real-time, and export the modified results.
 
+---
+
 ## Features
 
 - Upload participant data from an `.xlsx` file
